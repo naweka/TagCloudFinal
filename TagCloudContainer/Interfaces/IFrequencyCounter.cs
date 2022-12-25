@@ -1,9 +1,10 @@
 ﻿using TagCloudContainer.Models;
+using TagCloudContainer.Result;
 
 namespace TagCloudContainer.Interfaces
 {
     public interface IFrequencyCounter
     {
-        IEnumerable<TagWithFrequency> GetTagsFrequency(IEnumerable<string> words);
+        Result<IEnumerable<TagWithFrequency>> GetTagsFrequency(IEnumerable<string> words);
     }
 }

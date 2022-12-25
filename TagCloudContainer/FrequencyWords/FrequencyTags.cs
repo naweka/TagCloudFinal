@@ -1,14 +1,16 @@
-﻿using TagCloudContainer.Interfaces;
+﻿using System.Collections.Generic;
+using TagCloudContainer.Interfaces;
 using TagCloudContainer.Models;
+using TagCloudContainer.Result;
 
 namespace TagCloudContainer.FrequencyWords
 {
     public class FrequencyCounter : IFrequencyCounter
     {
-        public IEnumerable<TagWithFrequency> GetTagsFrequency(IEnumerable<string> words)
+        public Result<IEnumerable<TagWithFrequency>> GetTagsFrequency(IEnumerable<string> words)
         {
             if (words == null)
-                throw new ArgumentNullException();
+                return Result.Result.Fail<IEnumerable<TagWithFrequency>>("words не может быть null");
 
             var totalWords = 0;
             var frequencyDict = new Dictionary<string, int>();
@@ -30,8 +32,8 @@ namespace TagCloudContainer.FrequencyWords
                     x => x.Value
                 );
 
-            return frequencyDict
-                .Select(pair => new TagWithFrequency(pair.Key, pair.Value));
+            return Result.Result.Ok(frequencyDict
+                .Select(pair => new TagWithFrequency(pair.Key, pair.Value)));
         }
     }
 }

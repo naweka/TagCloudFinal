@@ -1,14 +1,16 @@
 ﻿using TagCloudContainer.FrequencyWords;
 using TagCloudContainer.Interfaces;
 using TagCloudContainer.Models;
+using TagCloudContainer.Result;
 
 namespace TagCloudContainer.TagsWithFont
 {
     public class FontSizer : IFontSizer
     {
-        public IEnumerable<TagWithFont> GetTagsWithSize(IEnumerable<TagWithFrequency> tags, IFontSettings settings)
+        public Result<IEnumerable<ITag>> GetTagsWithSize(IEnumerable<TagWithFrequency> tags, IFontSettings settings)
         {
-            var sizeList = new List<TagWithFont>();
+            var sizeList = new List<ITag>();
+
             foreach (var tag in tags)
             {
                 var size = (int)Math.Round(tag.Count == tags.Last().Count
@@ -18,7 +20,8 @@ namespace TagCloudContainer.TagsWithFont
 
                 sizeList.Add(new TagWithFont(tag.Word, size, settings.Font));
             }
-            return sizeList;
+
+            return Result.Result.Ok(sizeList.Select(x => x));
         }
     }
 }

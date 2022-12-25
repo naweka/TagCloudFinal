@@ -8,7 +8,7 @@ namespace TagCloudContainer.Result
 {
     public class None
     {
-        private None()
+        public None()
         {
         }
     }
@@ -26,7 +26,7 @@ namespace TagCloudContainer.Result
         }
 
         public string Error { get; }
-        internal T Value { get; }
+        public T Value { get; }
         public T GetValueOrThrow()
         {
             if (IsSuccess) return Value;

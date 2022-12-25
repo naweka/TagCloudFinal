@@ -1,6 +1,7 @@
 ﻿using MystemHandler;
 using TagCloudContainer;
 using TagCloudContainer.Interfaces;
+using TagCloudContainer.Result;
 using TagCloudGUI.Interfaces;
 using TagCloudGUI.Settings;
 
@@ -42,16 +43,30 @@ namespace TagCloudGUI.Actions
 
         void IActionForm.Perform()
         {
-            algorithmSettings.ImagesDirectory ??= GetFilePathDialog();
+            var filePath = GetFilePathDialog();
+
+            if (!filePath.IsSuccess)
+            {
+                MessageBox.Show(filePath.Error);
+                return;
+            }
+
+            algorithmSettings.ImagesDirectory ??= filePath.Value;
 
             SettingsForm.For(algorithmSettings).ShowDialog();
             pointFigure.Reset();
 
             var cloud = new TagCloud();
-            cloud.CreateTagCloud(
+            var res = cloud.CreateTagCloud(
                 pointFigure,
                 rectangleBuilder,
-                InitialTags(algorithmSettings.ImagesDirectory));
+                InitialTags(algorithmSettings.ImagesDirectory).Value);
+
+            if (!res.IsSuccess)
+            {
+                MessageBox.Show(res.Error);
+                return;
+            }
 
             var size = ImageSizer.GetImageSize(cloud.GetRectangles());
             image.RecreateImage(new ImageSettings { Height = size.Height, Width = size.Width });
@@ -59,7 +74,7 @@ namespace TagCloudGUI.Actions
             DrawCloud(cloud);
         }
 
-        private string GetFilePathDialog()
+        private Result<string> GetFilePathDialog()
         {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
@@ -67,8 +82,12 @@ namespace TagCloudGUI.Actions
             openFileDialog1.Filter = "Txt files (*.txt)|*.txt|Doc files (*.doc)|*.doc|Docx files (*.docx)|*.docx";
             openFileDialog1.FilterIndex = 0;
             openFileDialog1.RestoreDirectory = true;
-            openFileDialog1.ShowDialog();
-            return openFileDialog1.FileName;
+            var result = openFileDialog1.ShowDialog();
+
+            if (result == DialogResult.Cancel || openFileDialog1.FileName is null or "")
+                return Result.Fail<string>("Файл не был выбран");
+
+            return Result.Ok(openFileDialog1.FileName);
         }
 
         private void DrawCloud(TagCloud cloud)
@@ -77,22 +96,54 @@ namespace TagCloudGUI.Actions
                     palette);
         }
 
-        public IEnumerable<ITag> InitialTags(string filePath)
+        public Result<IEnumerable<ITag>> InitialTags(string filePath)
         {
-            string originalText = presetsSettings.Reader.ReadFile(filePath);
+            var originalTextResult = presetsSettings.Reader.ReadFile(filePath);
 
-            var parsedText = presetsSettings.Parser.Parse(originalText);
+            if (!originalTextResult.IsSuccess)
+            {
+                MessageBox.Show(originalTextResult.Error);
+                return Result.Fail<IEnumerable<ITag>>("Ошибка при чтении файла");
+            }
+
+            var parsedTextResult = presetsSettings.Parser.Parse(originalTextResult.Value);
+
+            if (!parsedTextResult.IsSuccess)
+            {
+                MessageBox.Show(parsedTextResult.Error);
+                return Result.Fail<IEnumerable<ITag>>("Ошибка при парсинге файла");
+            }
 
             if (presetsSettings.Filtered == Switcher.Enabled)
-                parsedText = boringWordsFilter.FilterWords(parsedText);
+            {
+                parsedTextResult = boringWordsFilter.FilterWords(parsedTextResult.Value);
 
-            var formattedTags = presetsSettings.ToLowerCase == Switcher.Enabled
-                ? presetsSettings.Formatter.Normalize(parsedText, x => x.ToLower())
-                : parsedText;
+                if (!parsedTextResult.IsSuccess)
+                {
+                    MessageBox.Show(parsedTextResult.Error);
+                    return Result.Fail<IEnumerable<ITag>>("Ошибка при исключении скучных слов");
+                }
+            }
 
-            var freqTags = presetsSettings.FrequencyCounter.GetTagsFrequency(formattedTags);
+            var formattedTagsResult = presetsSettings.ToLowerCase == Switcher.Enabled
+                ? presetsSettings.Formatter.Normalize(parsedTextResult.Value, x => x.ToLower())
+                : parsedTextResult;
 
-            return presetsSettings.FontSizer.GetTagsWithSize(freqTags, algorithmSettings.FontSettings);
+            if (!formattedTagsResult.IsSuccess)
+            {
+                MessageBox.Show(formattedTagsResult.Error);
+                return Result.Fail<IEnumerable<ITag>>("Ошибка при нормализации текста");
+            }
+
+            var freqTagsResult = presetsSettings.FrequencyCounter.GetTagsFrequency(formattedTagsResult.Value);
+
+            if (!freqTagsResult.IsSuccess)
+            {
+                MessageBox.Show(freqTagsResult.Error);
+                return Result.Fail<IEnumerable<ITag>>("Ошибка при подсчете частот слов");
+            }
+
+            return presetsSettings.FontSizer.GetTagsWithSize(freqTagsResult.Value, algorithmSettings.FontSettings);
         }
     }
 }

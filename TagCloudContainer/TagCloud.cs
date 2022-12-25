@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using TagCloudContainer.Interfaces;
 using TagCloudContainer.Models;
+using TagCloudContainer.Result;
 
 namespace TagCloudContainer
 {
@@ -17,7 +18,7 @@ namespace TagCloudContainer
 
         public List<RectangleWithText> GetRectangles() => rectangles;
 
-        public void CreateTagCloud(
+        public Result<None> CreateTagCloud(
             IPointProvider pointFigure,
             IRectangleBuilder rectangleBuilder,
             IEnumerable<ITag> tags)
@@ -27,10 +28,13 @@ namespace TagCloudContainer
             bool? filledEmptySpaces = false;
 
             while (!TryFillRectangle(pointFigure, nextSizeRectangle, ref filledEmptySpaces));
+
+            return Result.Result.Ok(new None());
         }
 
         private bool TryFillRectangle(IPointProvider arithmeticSpiral,
-            IEnumerator<RectangleWithText> nextSizeRectangle, ref bool? nextIteration)
+            IEnumerator<RectangleWithText> nextSizeRectangle, 
+            ref bool? nextIteration)
         {
             var point = arithmeticSpiral.GetNextPoint();
 

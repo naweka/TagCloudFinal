@@ -2,6 +2,8 @@
 using Spire.Doc.Documents;
 using System.Text;
 using TagCloudContainer.Interfaces;
+using TagCloudContainer.Result;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TagCloudContainer.Readers
 {
@@ -24,14 +26,21 @@ namespace TagCloudContainer.Readers
             return stringBuilder.ToString();
         }
 
-        public string ReadFile(string path)
+        public Result<string> ReadFile(string path)
         {
-            return Path.GetExtension(path) switch
+            try
             {
-                ".txt" => TxtRead(path),
-                ".doc" or ".docx" => DocRead(path),
-                _ => throw new ArgumentException("Incorrect file extension: " + Path.GetExtension(path)),
-            };
+                return Result.Result.Ok(Path.GetExtension(path) switch
+                {
+                    ".txt" => TxtRead(path),
+                    ".doc" or ".docx" => DocRead(path),
+                    _ => throw new ArgumentException("Incorrect file extension: " + Path.GetExtension(path)),
+                });
+            }
+            catch (Exception e)
+            {
+                return Result.Result.Fail<string>($"Ошибка при чтении файла: {e.Message}");
+            }
         }
     }
 }

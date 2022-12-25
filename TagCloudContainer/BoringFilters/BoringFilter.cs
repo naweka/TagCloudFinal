@@ -1,37 +1,53 @@
 ﻿using MystemHandler;
 using System.Net;
 using TagCloudContainer.Interfaces;
+using TagCloudContainer.Result;
 
 namespace TagCloudContainer.BoringFilters
 {
     public class BoringFilter : IBoringWordsFilter
     {
-        public IEnumerable<string> FilterText(string text)
+        public Result<IEnumerable<string>> FilterText(string text)
         {
-            DownloadRuntimeIfNotExist();
+            var downloadResult = DownloadRuntimeIfNotExist();
+
+            if (!downloadResult.IsSuccess)
+                Result.Result.Fail<IEnumerable<string>>(downloadResult.Error);
 
             MystemMultiThread mystem = new(1, @"mystem.exe");
-            return mystem.StemWords(text)!
+            return Result.Result.Ok(mystem.StemWords(text)!
                 .Where(l => !l.IsSlug)
-                .Select(l => l.Lemma);
+                .Select(l => l.Lemma));
         }
 
-        public IEnumerable<string> FilterWords(IEnumerable<string> words)
+        public Result<IEnumerable<string>> FilterWords(IEnumerable<string> words)
         {
-            DownloadRuntimeIfNotExist();
+            var downloadResult = DownloadRuntimeIfNotExist();
+
+            if (!downloadResult.IsSuccess)
+                Result.Result.Fail<IEnumerable<string>>(downloadResult.Error);
 
             MystemMultiThread mystem = new(1, @"mystem.exe");
-            return words
+            return Result.Result.Ok(words
                 .SelectMany(s => mystem.StemWords(s)!)
                 .Where(l => !l.IsSlug)
-                .Select(l => l.Lemma);
+                .Select(l => l.Lemma));
         }
 
-        private void DownloadRuntimeIfNotExist()
+        private Result<None> DownloadRuntimeIfNotExist()
         {
-            if (!File.Exists("mystem.exe"))
-                using (var wc = new WebClient())
-                    wc.DownloadFile(@"https://vk.com/s/v1/doc/845vqKJTZoySMh9De3XCG5-LUbfLsTAqSGKBVvhmOdIvSzSPu7c", "mystem.exe");
+            try
+            {
+                if (!File.Exists("mystem.exe"))
+                    using (var wc = new WebClient())
+                        wc.DownloadFile(@"https://vk.com/s/v1/doc/845vqKJTZoySMh9De3XCG5-LUbfLsTAqSGKBVvhmOdIvSzSPu7c", "mystem.exe");
+                
+                return Result.Result.Ok(new None());
+            }
+            catch (Exception e)
+            {
+                return Result.Result.Fail<None>($"Ошибка при загрузке mystem: {e.Message}");
+            }
         }
     }
 }

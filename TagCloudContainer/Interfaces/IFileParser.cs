@@ -1,7 +1,9 @@
-﻿namespace TagCloudContainer.Interfaces
+﻿using TagCloudContainer.Result;
+
+namespace TagCloudContainer.Interfaces
 {
     public interface IFileParser
     {
-        IEnumerable<string> Parse(string text);
+        Result<IEnumerable<string>> Parse(string text);
     }
 }
