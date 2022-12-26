@@ -11,7 +11,7 @@ namespace TagCloudContainer.Models
         {
             Rectangle = rectangle;
             Text = text;
-            Font = font ?? throw new ArgumentNullException(nameof(font));
+            Font = font;
         }
     }
 }

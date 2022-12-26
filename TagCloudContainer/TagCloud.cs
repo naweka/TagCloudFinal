@@ -23,11 +23,18 @@ namespace TagCloudContainer
             IRectangleBuilder rectangleBuilder,
             IEnumerable<ITag> tags)
         {
-            var nextSizeRectangle = rectangleBuilder.GetRectangles(tags).GetEnumerator();
-            nextSizeRectangle.MoveNext();
-            bool? filledEmptySpaces = false;
+            try
+            {
+                var nextSizeRectangle = rectangleBuilder.GetRectangles(tags).GetEnumerator();
+                nextSizeRectangle.MoveNext();
+                bool? filledEmptySpaces = false;
 
-            while (!TryFillRectangle(pointFigure, nextSizeRectangle, ref filledEmptySpaces));
+                while (!TryFillRectangle(pointFigure, nextSizeRectangle, ref filledEmptySpaces)) ;
+            }
+            catch (Exception e)
+            {
+                return Result.Result.Fail<None>(e.Message);
+            }
 
             return Result.Result.Ok(new None());
         }

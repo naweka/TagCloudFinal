@@ -52,10 +52,7 @@ namespace TagCloudGUI.Actions
             }
 
             algorithmSettings.FilePath = filePath.Value;
-
             SettingsForm.For(algorithmSettings).ShowDialog();
-
-
 
             pointFigure.Reset();
 

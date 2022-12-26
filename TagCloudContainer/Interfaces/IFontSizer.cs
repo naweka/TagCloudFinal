@@ -6,7 +6,6 @@ namespace TagCloudContainer.Interfaces
 {
     public interface IFontSizer
     {
-        //TagWithFont
-        Result<IEnumerable<ITag>> GetTagsWithSize(IEnumerable<TagWithFrequency> tags, IFontSettings settings);
+       Result<IEnumerable<ITag>> GetTagsWithSize(IEnumerable<TagWithFrequency> tags, IFontSettings settings);
     }
 }

@@ -18,14 +18,18 @@ namespace TagCloudGUI
 {
     internal static class Program
     {
-        /// <summary>
-        /// Главная точка входа для приложения.
-        /// </summary>
         [STAThread]
         static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            var container = GetContainer();
+            Application.Run(container.Resolve<CloudForm>());
+        }
+
+        public static IContainer GetContainer()
+        {
             var builder = new ContainerBuilder();
             builder.RegisterType<FontSettings>().As<IFontSettings>();
 
@@ -50,8 +54,7 @@ namespace TagCloudGUI
 
             builder.RegisterTypes(typeof(TagCloud), typeof(RectangleWithText), typeof(CloudForm), typeof(ImageSettings)).AsSelf();
             var container = builder.Build();
-            Application.Run(container.Resolve<CloudForm>());
-
+            return container;
         }
     }
 }
