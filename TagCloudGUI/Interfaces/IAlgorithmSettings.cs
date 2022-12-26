@@ -5,7 +5,7 @@ namespace TagCloudGUI.Interfaces
     public interface IAlgorithmSettings : IVisualizationCloudSettings, IProviderSettings
     {
         IFontSettings FontSettings { get; set; }
-        string ImagesDirectory { get; set; }
+        string FilePath { get; set; }
 
         FontFamily Font
         {

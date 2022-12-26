@@ -2,6 +2,6 @@
 {
     public interface IVisualizationCloudSettings
     {
-        string ImagesDirectory { get; set; }
+        string FilePath { get; set; }
     }
 }

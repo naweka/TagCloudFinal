@@ -36,7 +36,17 @@ namespace TagCloudGUI.Settings
         public int MaxFont
         {
             get => FontSettings.MaxFontSize;
-            set => FontSettings.MaxFontSize = value;
+            set 
+            {
+                try 
+                {
+                    FontSettings.MaxFontSize = value;
+                } 
+                catch (Exception e) 
+                {
+                    MessageBox.Show(e.Message);
+                }  
+            }
         }
 
         [DisplayName("Минимальный шрифт")]
@@ -46,7 +56,7 @@ namespace TagCloudGUI.Settings
             set => FontSettings.MinFontSize = value;
         }
 
-        [DisplayName("Путь к файлу")] public string ImagesDirectory { get; set; }
+        [DisplayName("Путь к файлу")] public string FilePath { get; set; }
 
         [DisplayName("Удалять мусор")] public Switcher Filtered { get; set; }
         [DisplayName("Нижний регистр")] public Switcher ToLowerCase { get; set; }

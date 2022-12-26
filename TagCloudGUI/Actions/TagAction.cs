@@ -51,16 +51,24 @@ namespace TagCloudGUI.Actions
                 return;
             }
 
-            algorithmSettings.ImagesDirectory ??= filePath.Value;
+            algorithmSettings.FilePath = filePath.Value;
 
             SettingsForm.For(algorithmSettings).ShowDialog();
             pointFigure.Reset();
 
             var cloud = new TagCloud();
+            var tagsResult = InitialTags(algorithmSettings.FilePath);
+
+            if (!tagsResult.IsSuccess)
+            {
+                MessageBox.Show(tagsResult.Error);
+                return;
+            }
+
             var res = cloud.CreateTagCloud(
                 pointFigure,
                 rectangleBuilder,
-                InitialTags(algorithmSettings.ImagesDirectory).Value);
+                tagsResult.Value);
 
             if (!res.IsSuccess)
             {
@@ -92,37 +100,28 @@ namespace TagCloudGUI.Actions
 
         private void DrawCloud(TagCloud cloud)
         {
-            presetsSettings.Drawer.DrawCloudFromPalette(cloud.GetRectangles(), image,
-                    palette);
+            presetsSettings.Drawer.DrawCloudFromPalette(cloud.GetRectangles(), image, palette);
         }
 
         public Result<IEnumerable<ITag>> InitialTags(string filePath)
         {
+            
             var originalTextResult = presetsSettings.Reader.ReadFile(filePath);
 
             if (!originalTextResult.IsSuccess)
-            {
-                MessageBox.Show(originalTextResult.Error);
-                return Result.Fail<IEnumerable<ITag>>("Ошибка при чтении файла");
-            }
+                return Result.Fail<IEnumerable<ITag>>("Ошибка при чтении файла: " + originalTextResult.Error);
 
             var parsedTextResult = presetsSettings.Parser.Parse(originalTextResult.Value);
 
             if (!parsedTextResult.IsSuccess)
-            {
-                MessageBox.Show(parsedTextResult.Error);
-                return Result.Fail<IEnumerable<ITag>>("Ошибка при парсинге файла");
-            }
+                return Result.Fail<IEnumerable<ITag>>("Ошибка при парсинге файла: " + parsedTextResult.Error);
 
             if (presetsSettings.Filtered == Switcher.Enabled)
             {
                 parsedTextResult = boringWordsFilter.FilterWords(parsedTextResult.Value);
 
                 if (!parsedTextResult.IsSuccess)
-                {
-                    MessageBox.Show(parsedTextResult.Error);
-                    return Result.Fail<IEnumerable<ITag>>("Ошибка при исключении скучных слов");
-                }
+                    return Result.Fail<IEnumerable<ITag>>("Ошибка при исключении скучных слов: " + parsedTextResult.Error);
             }
 
             var formattedTagsResult = presetsSettings.ToLowerCase == Switcher.Enabled
@@ -130,18 +129,12 @@ namespace TagCloudGUI.Actions
                 : parsedTextResult;
 
             if (!formattedTagsResult.IsSuccess)
-            {
-                MessageBox.Show(formattedTagsResult.Error);
-                return Result.Fail<IEnumerable<ITag>>("Ошибка при нормализации текста");
-            }
+                return Result.Fail<IEnumerable<ITag>>("Ошибка при нормализации текста: " + formattedTagsResult.Error);
 
             var freqTagsResult = presetsSettings.FrequencyCounter.GetTagsFrequency(formattedTagsResult.Value);
 
             if (!freqTagsResult.IsSuccess)
-            {
-                MessageBox.Show(freqTagsResult.Error);
-                return Result.Fail<IEnumerable<ITag>>("Ошибка при подсчете частот слов");
-            }
+                return Result.Fail<IEnumerable<ITag>>("Ошибка при подсчете частот слов: " + freqTagsResult.Error);
 
             return presetsSettings.FontSizer.GetTagsWithSize(freqTagsResult.Value, algorithmSettings.FontSettings);
         }

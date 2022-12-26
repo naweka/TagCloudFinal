@@ -2,6 +2,6 @@
 {
     public interface IProviderSettings
     {
-        string ImagesDirectory { get; }
+        string FilePath { get; }
     }
 }

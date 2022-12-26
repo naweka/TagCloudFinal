@@ -39,7 +39,7 @@ namespace TagCloudContainer.Readers
             }
             catch (Exception e)
             {
-                return Result.Result.Fail<string>($"Ошибка при чтении файла: {e.Message}");
+                return Result.Result.Fail<string>(e.Message);
             }
         }
     }

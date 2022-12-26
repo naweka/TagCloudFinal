@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagCloudContainer", "TagClo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagCloudGUI", "TagCloudGUI\TagCloudGUI.csproj", "{ECF15FBA-5B1D-4D7D-A551-792D9E102336}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagCloudTests", "TagCloudTests\TagCloudTests.csproj", "{CC697980-3983-43DE-89BA-9AD9AB84AC88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagCloudTests", "TagCloudTests\TagCloudTests.csproj", "{CC697980-3983-43DE-89BA-9AD9AB84AC88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,7 +26,6 @@ Global
 		{CC697980-3983-43DE-89BA-9AD9AB84AC88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CC697980-3983-43DE-89BA-9AD9AB84AC88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC697980-3983-43DE-89BA-9AD9AB84AC88}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CC697980-3983-43DE-89BA-9AD9AB84AC88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
