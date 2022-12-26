@@ -13,11 +13,6 @@ namespace TagCloudTests
 {
     public class Tests
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
         [Test]
         public void ReaderShould_ParseTextCorrectly()
         {
@@ -26,12 +21,12 @@ namespace TagCloudTests
 super
 word";
             var parsedText = new FileLinesParser().Parse(testString);
-            parsedText.Count().Should().Be(3);
+            parsedText.Value.Count().Should().Be(3);
 
             var testStringSplitted = testString.Split('\n').Select(s => s.Trim()).ToList();
 
             for (var i = 0; i < testStringSplitted.Count(); i++)
-                parsedText.ToList()[i].Should().Be(testStringSplitted[i]);
+                parsedText.Value.ToList()[i].Should().Be(testStringSplitted[i]);
         }
 
         [Test]
@@ -44,8 +39,8 @@ word";
 с
 подвохом";
             var parsedText = new FileLinesParser().Parse(testString);
-            var filteredText = new BoringFilter().FilterWords(parsedText);
-            filteredText.Count().Should().Be(3);
+            var filteredText = new BoringFilter().FilterWords(parsedText.Value);
+            filteredText.Value.Count().Should().Be(3);
         }
 
         [Test]
@@ -53,8 +48,9 @@ word";
         {
             var reader = new Reader();
           
-            var text = reader.DocRead($"test_reader.docx");
-            text.Trim().Should().Be("test" + Environment.NewLine + "reader");
+            var text = reader.ReadFile($"test_reader.docx");
+            text.IsSuccess.Should().Be(true);
+            text.Value.Trim().Should().Be("test" + Environment.NewLine + "reader");
         }
 
         [Test]
@@ -62,8 +58,10 @@ word";
         {
             var reader = new Reader();
 
-            var text = reader.TxtRead($"test_reader.txt");
-            text.Trim().Should().Be("test" + Environment.NewLine + "reader");
+            var text = reader.ReadFile($"test_reader.txt");
+
+            text.IsSuccess.Should().Be(true);
+            text.Value.Trim().Should().Be("test" + Environment.NewLine + "reader");
         }
 
         [Test]
@@ -76,7 +74,7 @@ word";
                 "b", "b", "b", "b"
             };
 
-            var wordsFrequency = new FrequencyCounter().GetTagsFrequency(words).ToList();
+            var wordsFrequency = new FrequencyCounter().GetTagsFrequency(words).Value.ToList();
             wordsFrequency.Count().Should().Be(3);
 
             wordsFrequency[0].Count.Should().Be(4);
@@ -94,7 +92,7 @@ word";
                 "b", "b", "b", "b"
             };
 
-            var result = new WordFormatter().Normalize(words, s => s.ToUpper()).ToArray();
+            var result = new WordFormatter().Normalize(words, s => s.ToUpper()).Value.ToArray();
 
             for (var i = 0; i < words.Count(); i++)
                 words[i].ToUpper().Should().Be(result[i]);
@@ -111,9 +109,9 @@ word";
            
             var fontTags = fontSizer
                 .GetTagsWithSize(
-                new FrequencyCounter().GetTagsFrequency(words),
+                new FrequencyCounter().GetTagsFrequency(words).Value,
                 new FontSettings() { MaxFontSize = 150, MinFontSize = 50, Font = new FontFamily("Arial") }
-                ).ToList();
+                ).Value.ToList();
 
             fontTags.Count.Should().Be(2);
 
