@@ -29,31 +29,43 @@ namespace TagCloudGUI.Settings
         public string FontFamilyName
         {
             get => FontSettings.Font.Name;
-            set => FontSettings.Font = new FontFamily(value);
+            set
+            {
+                try
+                {
+                    FontSettings.Font = new FontFamily(value);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
+            }
         }
 
         [DisplayName("Максимальный шрифт")]
-        public int MaxFont
+        public int MaxFontSize
         {
             get => FontSettings.MaxFontSize;
-            set 
+            set
             {
-                try 
-                {
+                if (!IsFontSizesCorrect(FontSettings.MinFontSize, value))
+                    MessageBox.Show("Incorrect font size");
+                else
                     FontSettings.MaxFontSize = value;
-                } 
-                catch (Exception e) 
-                {
-                    MessageBox.Show(e.Message);
-                }  
             }
         }
 
         [DisplayName("Минимальный шрифт")]
-        public int MinFont
+        public int MinFontSize
         {
             get => FontSettings.MinFontSize;
-            set => FontSettings.MinFontSize = value;
+            set
+            {
+                if (!IsFontSizesCorrect(value, FontSettings.MaxFontSize))
+                    MessageBox.Show("Incorrect font size");
+                else
+                    FontSettings.MinFontSize = value;
+            }
         }
 
         [DisplayName("Путь к файлу")] public string FilePath { get; set; }
@@ -67,5 +79,8 @@ namespace TagCloudGUI.Settings
         [Browsable(false)] public IFrequencyCounter FrequencyCounter { get; }
         [Browsable(false)] public IFontSizer FontSizer { get; }
         [Browsable(false)] public ICloudDrawer Drawer { get; }
+
+        public bool IsFontSizesCorrect(int min, int max)
+            => max > 0 && min > 0 && max > min;
     }
 }

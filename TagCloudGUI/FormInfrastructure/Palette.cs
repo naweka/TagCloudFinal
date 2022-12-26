@@ -4,11 +4,58 @@ namespace TagCloudGUI
 {
     public class Palette
     {
+        private Color primary = Color.Yellow;
+        private Color secondary = Color.DeepPink;
+        private Color background = Color.Black;
+
         [DisplayName("Цвет максимума")]
-        public Color PrimaryColor { get; set; } = Color.Magenta;
+        public Color PrimaryColor 
+        { 
+            get => primary;
+            set
+            {
+                try
+                {
+                    primary = value;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
+            }
+        } 
         [DisplayName("Цвет минимума")]
-        public Color SecondaryColor { get; set; } = Color.Yellow;
+        public Color SecondaryColor 
+        {
+            get => secondary;
+            set
+            {
+                try
+                {
+                    secondary = value;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
+            }
+        
+        }
         [DisplayName("Цвет фона")]
-        public Color BackgroundColor { get; set; } = Color.White;
+        public Color BackgroundColor 
+        {
+            get => background;
+            set
+            {
+                try
+                {
+                    background = value;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
+            }
+        }
     }
 }

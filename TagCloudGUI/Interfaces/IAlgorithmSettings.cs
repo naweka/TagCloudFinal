@@ -13,13 +13,13 @@ namespace TagCloudGUI.Interfaces
             set => FontSettings.Font = value;
         }
 
-        int MaxFont
+        int MaxFontSize
         {
             get => FontSettings.MaxFontSize;
             set => FontSettings.MaxFontSize = value;
         }
 
-        int MinFont
+        int MinFontSize
         {
             get => FontSettings.MinFontSize;
             set => FontSettings.MinFontSize = value;

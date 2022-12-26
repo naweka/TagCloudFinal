@@ -7,19 +7,6 @@ namespace TagCloudContainer.BoringFilters
 {
     public class BoringFilter : IBoringWordsFilter
     {
-        public Result<IEnumerable<string>> FilterText(string text)
-        {
-            var downloadResult = DownloadRuntimeIfNotExist();
-
-            if (!downloadResult.IsSuccess)
-                Result.Result.Fail<IEnumerable<string>>(downloadResult.Error);
-
-            MystemMultiThread mystem = new(1, @"mystem.exe");
-            return Result.Result.Ok(mystem.StemWords(text)!
-                .Where(l => !l.IsSlug)
-                .Select(l => l.Lemma));
-        }
-
         public Result<IEnumerable<string>> FilterWords(IEnumerable<string> words)
         {
             var downloadResult = DownloadRuntimeIfNotExist();
@@ -27,11 +14,18 @@ namespace TagCloudContainer.BoringFilters
             if (!downloadResult.IsSuccess)
                 Result.Result.Fail<IEnumerable<string>>(downloadResult.Error);
 
-            MystemMultiThread mystem = new(1, @"mystem.exe");
-            return Result.Result.Ok(words
-                .SelectMany(s => mystem.StemWords(s)!)
-                .Where(l => !l.IsSlug)
-                .Select(l => l.Lemma));
+            try
+            {
+                MystemMultiThread mystem = new(1, @"mystem.exe");
+                return Result.Result.Ok(words
+                    .SelectMany(s => mystem.StemWords(s)!)
+                    .Where(l => !l.IsSlug)
+                    .Select(l => l.Lemma));
+            }
+            catch(Exception e)
+            {
+                return Result.Result.Fail<IEnumerable<string>>(e.Message);
+            }
         }
 
         private Result<None> DownloadRuntimeIfNotExist()
